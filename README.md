@@ -137,9 +137,9 @@ This repository contains a complete reanalysis of the Yu et al. (2008) phase III
 
 If you use this code or analysis approach, please cite:
 ```
-[Your Name(s)]. (2024). Lofexidine for Opioid Withdrawal: Rigorous Reanalysis 
+[Enock Adu Bonsu, Katheryne Perez, Lesley Guarena Espinosa, Estefania Ochoa Mora]. (2024). Lofexidine for Opioid Withdrawal: Rigorous Reanalysis 
 with Comprehensive Missing Data Sensitivity Analysis. GitHub repository. 
-https://github.com/YOUR_USERNAME/lofexidine-withdrawal-missing-data-analysis
+https://github.com/Enockadubonsu/lofexidine-withdrawal-missing-data-analysis
 ```
 
 ## License
@@ -150,18 +150,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Authors
 
-- **[Your Name]** - *Primary Analyst* - [Your Email/Website]
-- **[Collaborator Names if applicable]**
+- **[Enock Adu Bonsu]** - *Primary Analyst* - [adubonsuenock84@gmail.com/enocka@arizona.edu]
+- **[Katheryne Perez, Lesley Guarena Espinosa, Estefania Ochoa Mora]**
 
 ## Acknowledgments
 
 - Original study investigators: Yu et al. (2008)
 - Data source: National Institute on Drug Abuse (NIDA) Data Share Program
-- Course instructor: [Professor Name] (if academic project)
+- Course instructor: [Dr. Edward Bedrick
 
 ## Contact
 
-For questions or collaborations, please open an issue or contact [your email].
+For questions or collaborations, please open an issue or contact [enocka@arizona.edu].
 
 **Keywords:** opioid withdrawal, lofexidine, missing data, multiple imputation, sensitivity analysis, longitudinal analysis, linear mixed models, MNAR, tipping point analysis, randomized controlled trial, biostatistics
 ```
