@@ -113,7 +113,7 @@ This repository contains a complete reanalysis of the Yu et al. (2008) phase III
 
 **Why Multiple Methods?**
 - Primary LMM uses all available observed data (efficient under MAR)
-- Multiple imputation fills in missing values then analyzes (alternative MAR)
+- Multiple imputation fills in missing values, then analyzes (alternative MAR)
 - Tipping point analysis tests MNAR scenarios (robustness check)
 
 **Fraction of Missing Information (FMI):** Proportion of total variance due to missingness
@@ -146,7 +146,7 @@ https://github.com/Enockadubonsu/lofexidine-withdrawal-missing-data-analysis
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-**Data License:** Original data from NIDA Data Share Program. Please review NIDA data sharing policies.
+**Data License:** Original data from the NIDA Data Share Program. Please review NIDA data sharing policies.
 
 ## Authors
 
@@ -157,7 +157,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Original study investigators: Yu et al. (2008)
 - Data source: National Institute on Drug Abuse (NIDA) Data Share Program
-- Course instructor: [Dr. Edward Bedrick
+- Course instructor: [Dr. Edward Bedrick]
 
 ## Contact
 
@@ -172,11 +172,11 @@ Create a `LICENSE` file with this content (MIT License):
 ```
 MIT License
 
-Copyright (c) 2024 [Your Name]
+Copyright (c) 2024 [Enock Adu Bonsu]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
+in the Software without restriction, including, without limitation, the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
@@ -187,8 +187,8 @@ copies or substantial portions of the Software.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
@@ -203,7 +203,7 @@ Create a `.gitignore` to exclude unnecessary files:
 .Rproj.user
 *.Rproj
 
-# Output files (optional - include if you want outputs tracked)
+# Output files
 # output/
 # *.png
 # *.pdf
