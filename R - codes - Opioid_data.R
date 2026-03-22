@@ -1,5 +1,5 @@
 
-setwd("C:/Users/adubo/Desktop/PhD BIOSTATS/BIOS 576 C/Project 2/Results")
+
 
 
 ################################################################################
@@ -36,32 +36,21 @@ library(VIM)
 library(gridExtra)
 library(cowplot)
 
-cat("✓ Packages loaded successfully\n\n")
-
 # ==============================================================================
 # 1. DATA IMPORT
 # ==============================================================================
 
-cat("=== STEP 1: DATA IMPORT ===\n")
-
 # UPDATE THESE PATHS TO YOUR DATA LOCATION
-base_end <- read.csv("C:/Users/adubo/Desktop/PhD BIOSTATS/BIOS 576 C/Project 2/base_end.csv", 
+base_end <- read.csv("base_end.csv", 
                      stringsAsFactors = FALSE)
-withdraw <- read.csv("C:/Users/adubo/Desktop/PhD BIOSTATS/BIOS 576 C/Project 2/withdraw.csv", 
+withdraw <- read.csv("withdraw.csv", 
                      stringsAsFactors = FALSE)
-emesis <- read.csv("C:/Users/adubo/Desktop/PhD BIOSTATS/BIOS 576 C/Project 2/emesis.csv", 
+emesis <- read.csv("emesis.csv", 
                    stringsAsFactors = FALSE)
-
-cat("✓ Data loaded successfully\n")
-cat("  Base/End records:", nrow(base_end), "\n")
-cat("  Withdraw records:", nrow(withdraw), "\n")
-cat("  Emesis records:", nrow(emesis), "\n\n")
 
 # ==============================================================================
 # 2. DATA CLEANING AND MHOWS CALCULATION
 # ==============================================================================
-
-cat("=== STEP 2: DATA CLEANING ===\n")
 
 # ------------------------------------------------------------------------------
 # 2.1 Clean base_end dataset
@@ -90,8 +79,6 @@ base_clean <- base_end %>%
   select(PATIENT, treat, age, gender, educ_yr, depression, anxiety, 
          IV, oral_nasal_smoke, smoke, days_use_30d, 
          study_day_drop, drop_reason, drop_reason_label, dropped)
-
-cat("✓ Base dataset cleaned. N =", nrow(base_clean), "\n")
 
 # ------------------------------------------------------------------------------
 # 2.2 Clean withdraw dataset - CORRECTED SCORING per Protocol Table 5
@@ -124,8 +111,6 @@ withdraw_clean <- withdraw %>%
          anorexia_score, discrete_symptoms, 
          pts_pupil, pts_wt, pts_temp, pts_resp, pts_sysBP, continuous_signs,
          Q12DIA, Q12HR, Q14TEMP)
-
-cat("✓ Withdraw dataset cleaned. N =", nrow(withdraw_clean), "\n")
 
 # ------------------------------------------------------------------------------
 # 2.3 Clean emesis dataset
@@ -199,10 +184,6 @@ participants_with_baseline <- analysis_long %>%
 analysis_long <- analysis_long %>%
   filter(PATIENT %in% participants_with_baseline)
 
-cat("✓ Analysis dataset created\n")
-cat("  Participants:", length(unique(analysis_long$PATIENT)), "\n")
-cat("  Observations:", nrow(analysis_long), "\n\n")
-
 # Check baseline MHOWS
 day3_summary <- analysis_long %>%
   filter(day == 3) %>%
@@ -237,8 +218,6 @@ levels(analysis_long$treat)
 # ==============================================================================
 # 3. DESCRIPTIVE STATISTICS
 # ==============================================================================
-
-cat("=== STEP 3: DESCRIPTIVE STATISTICS ===\n")
 
 # ------------------------------------------------------------------------------
 # 3.1 Baseline characteristics (Table 1)
@@ -281,8 +260,6 @@ table1 %>%
   as_gt() %>%
   gtsave("Table1_Baseline_Characteristics.html")
 
-cat("✓ Table 1 created\n")
-
 # ------------------------------------------------------------------------------
 # 3.2 Missing data summary (Table 2)
 # ------------------------------------------------------------------------------
@@ -306,14 +283,11 @@ complete_cases <- analysis_long %>%
   summarise(n_obs = n(), has_all_days = n_obs == 6, .groups = "drop") %>%
   group_by(treat) %>%
   summarise(total = n(), complete = sum(has_all_days), pct_complete = round(100 * complete / total, 1))
-
-cat("\n--- Complete Cases (Days 3-8) ---\n")
 print(complete_cases)
 
 # ------------------------------------------------------------------------------
 # 3.3 Predictors of missingness
 # ------------------------------------------------------------------------------
-
 missingness_analysis <- analysis_long %>%
   filter(day %in% 4:8) %>%
   mutate(missing = is.na(MHOWS)) %>%
@@ -328,7 +302,6 @@ miss_model <- glm(
 miss_results <- broom::tidy(miss_model, exponentiate = TRUE, conf.int = TRUE) %>%
   mutate(across(where(is.numeric), round, 3))
 
-cat("\n--- Predictors of Missingness (OR) ---\n")
 print(miss_results)
 write.csv(miss_results, "Missingness_Predictors.csv", row.names = FALSE)
 
@@ -348,17 +321,12 @@ table3 <- analysis_long %>%
   select(day, treat, N, Mean_SD) %>%
   pivot_wider(names_from = treat, values_from = c(N, Mean_SD), names_glue = "{treat}_{.value}")
 
-cat("\n--- Table 3: Unadjusted Means ---\n")
 print(table3)
 write.csv(table3, "Table3_Unadjusted_Means.csv", row.names = FALSE)
-
-cat("\n✓ Descriptive statistics completed\n\n")
 
 # ==============================================================================
 # 4. VISUALIZATIONS
 # ==============================================================================
-
-cat("=== STEP 4: VISUALIZATIONS ===\n")
 
 # CONSORT numbers
 n_randomized <- length(unique(baseline_data$PATIENT))
@@ -403,10 +371,6 @@ fig3 <- ggplot(mean_traj, aes(x = day, y = Mean, color = treat, fill = treat)) +
 
 ggsave("Figure3_Mean_Trajectories.png", fig3, width = 10, height = 6, dpi = 300)
 
-cat("✓ Figures created\n\n")
-
-
-
 #NEW 
 
 # ==============================================================================
@@ -430,8 +394,6 @@ primary_model <- lme(
   na.action = na.omit,
   control = lmeControl(opt = "optim", maxIter = 100, msMaxIter = 100)
 )
-
-cat("✓ Primary model fitted\n")
 
 # Estimated marginal means
 emm_primary <- emmeans(primary_model, ~ treat | time_factor)
@@ -475,26 +437,6 @@ if (grepl("PLACEBO.*LOFEXIDINE", contrast_label)) {
   primary_result <- as.data.frame(contrast_result)
 }
 
-cat("\n")
-cat("╔══════════════════════════════════════════════════════════════╗\n")
-cat("║           PRIMARY ANALYSIS RESULT (CORRECTED)                ║\n")
-cat("╠══════════════════════════════════════════════════════════════╣\n")
-cat(sprintf("║  Average Treatment Effect (Days 4-8):                    ║\n"))
-cat(sprintf("║    Estimate: %7.2f MHOWS points                        ║\n", primary_result$estimate))
-cat(sprintf("║    95%% CI: [%6.2f, %6.2f]                              ║\n", primary_result$lower.CL, primary_result$upper.CL))
-cat(sprintf("║    p-value: %s                                    ║\n", 
-            ifelse(primary_result$p.value < 0.001, "<0.001", sprintf("%.4f", primary_result$p.value))))
-cat("║                                                              ║\n")
-cat(sprintf("║  Interpretation: Lofexidine reduces MHOWS by %.2f points  ║\n", abs(primary_result$estimate)))
-cat("║  compared to placebo (negative = better outcome)             ║\n")
-cat("║                                                              ║\n")
-if (primary_result$estimate < 0) {
-  cat("║  ✓ CORRECT: Negative estimate (Lofexidine improves outcome) ║\n")
-} else {
-  cat("║  ✗ WARNING: Positive estimate (check contrast direction!)   ║\n")
-}
-cat("╚══════════════════════════════════════════════════════════════╝\n\n")
-
 write.csv(as.data.frame(primary_result), "Primary_Average_Treatment_Effect.csv", row.names = FALSE)
 
 # Table 4
@@ -512,28 +454,6 @@ table4_data <- bind_rows(
   select(Timepoint, `Treatment Effect (95% CI)`, `p-value`)
 
 write.csv(table4_data, "Table4_Primary_Results.csv", row.names = FALSE)
-
-cat("✓ Primary analysis completed\n\n")
-
-# ==============================================================================
-# VERIFICATION: Check that primary and MI have same direction
-# ==============================================================================
-
-cat("╔══════════════════════════════════════════════════════════════╗\n")
-cat("║              CONTRAST DIRECTION VERIFICATION                 ║\n")
-cat("╠══════════════════════════════════════════════════════════════╣\n")
-cat(sprintf("║  Primary Analysis:                                       ║\n"))
-cat(sprintf("║    Estimate: %7.2f                                      ║\n", primary_result$estimate))
-cat(sprintf("║    Sign: %s                                              ║\n", 
-            ifelse(primary_result$estimate < 0, "Negative (correct)", "Positive (CHECK!)")))
-cat("║                                                              ║\n")
-cat("║  Expected: NEGATIVE value (Lofexidine reduces MHOWS)         ║\n")
-cat("║                                                              ║\n")
-cat("║  Both primary and MI analyses should have:                   ║\n")
-cat("║    • Same sign (both negative)                               ║\n")
-cat("║    • Similar magnitude (within 20-30% is acceptable)         ║\n")
-cat("╚══════════════════════════════════════════════════════════════╝\n\n")
-
 
 # ==============================================================================
 # 6. SENSITIVITY ANALYSES
@@ -585,8 +505,6 @@ cat("✓ SA1 completed\n")
 # ==============================================================================
 # COMPREHENSIVE MULTIPLE IMPUTATION ANALYSIS
 # ==============================================================================
-
-cat("=== RUNNING COMPREHENSIVE MULTIPLE IMPUTATION ===\n\n")
 
 # ------------------------------------------------------------------------------
 # 1. PREPARE DATA FOR IMPUTATION
@@ -652,8 +570,6 @@ write.csv(as.data.frame(missing_pattern_plot),
           "Missing_Data_Pattern_Summary.csv", 
           row.names = TRUE)
 
-cat("✓ Missing data visualizations created\n\n")
-
 # ------------------------------------------------------------------------------
 # 2. CONFIGURE IMPUTATION
 # ------------------------------------------------------------------------------
@@ -711,9 +627,6 @@ imp <- mice(
   seed = 12345,
   printFlag = FALSE
 )
-
-cat("✓ MICE imputation completed\n\n")
-
 # Check for logged events
 if (nrow(imp$loggedEvents) > 0) {
   cat("Logged events during imputation:\n")
@@ -727,8 +640,6 @@ if (nrow(imp$loggedEvents) > 0) {
 # ------------------------------------------------------------------------------
 # 4. CONVERGENCE DIAGNOSTICS
 # ------------------------------------------------------------------------------
-
-cat("Creating convergence diagnostics...\n")
 
 # Overall convergence plot
 png("MI_Convergence_Overall.png", width = 12, height = 10, units = "in", res = 300)
@@ -749,8 +660,6 @@ cat("  Look for: variance and mean stabilizing across iterations\n\n")
 # ------------------------------------------------------------------------------
 # 5. DISTRIBUTION DIAGNOSTICS
 # ------------------------------------------------------------------------------
-
-cat("Creating distribution diagnostics...\n")
 
 # Strip plots for MHOWS variables (shows observed vs imputed)
 png("MI_Stripplot_MHOWS.png", width = 14, height = 10, units = "in", res = 300)
@@ -792,16 +701,9 @@ png("MI_Densityplot_MHOWS.png", width = 14, height = 10, units = "in", res = 300
 safe_densityplot(imp, mhows_vars)
 dev.off()
 
-cat("✓ Distribution diagnostics created\n")
-cat("  Check 'MI_Stripplot_MHOWS.png' - imputed should overlap observed\n")
-cat("  Blue = observed, Red = imputed\n\n")
-
 # ------------------------------------------------------------------------------
 # 6. CORRELATION STRUCTURE EXAMINATION
 # ------------------------------------------------------------------------------
-
-cat("Examining correlation structure across imputations...\n")
-
 # Calculate correlations for complete data and each imputation
 observed_data <- mi_data_wide %>% 
   select(all_of(mhows_vars)) %>%
@@ -848,18 +750,9 @@ if (nrow(observed_data) >= 3) {
   png("MI_Correlation_Comparison.png", width = 14, height = 6, units = "in", res = 300)
   print(gridExtra::grid.arrange(p1, p2, ncol = 2))
   dev.off()
-  
-  cat("✓ Correlation heatmaps created\n")
-  cat("  Compare observed vs imputed correlation structure\n\n")
-} else {
-  cat("! Insufficient complete cases for correlation comparison\n\n")
-}
-
 # ------------------------------------------------------------------------------
 # 7. FIT MODELS TO IMPUTED DATA
 # ------------------------------------------------------------------------------
-
-cat("Fitting linear mixed models to imputed datasets...\n")
 
 # Convert to long format for modeling
 
@@ -936,16 +829,12 @@ mi_results_list <- lapply(seq_along(imputed_long_list), function(i) {
 mi_results_list <- mi_results_list[!sapply(mi_results_list, is.null)]
 mi_results_df <- do.call(rbind, mi_results_list)
 
-cat("\n✓ Models fitted to", nrow(mi_results_df), "imputed datasets\n\n")
-
 # Save individual imputation results
 write.csv(mi_results_df, "MI_Individual_Imputation_Results.csv", row.names = FALSE)
 
 # ------------------------------------------------------------------------------
 # 8. POOL RESULTS USING RUBIN'S RULES
 # ------------------------------------------------------------------------------
-
-cat("Pooling results using Rubin's Rules...\n")
 
 if (nrow(mi_results_df) > 0) {
   mi_estimates <- mi_results_df$estimate
@@ -1010,48 +899,9 @@ if (nrow(mi_results_df) > 0) {
   )
   
   write.csv(mi_summary, "MI_Pooled_Results_Detailed.csv", row.names = FALSE)
-  
-  # Print summary
-  cat("\n")
-  cat("╔══════════════════════════════════════════════════════════════╗\n")
-  cat("║        MULTIPLE IMPUTATION RESULTS (Rubin's Rules)          ║\n")
-  cat("╠══════════════════════════════════════════════════════════════╣\n")
-  cat(sprintf("║  Pooled Estimate: %7.2f MHOWS points                    ║\n", Q_bar))
-  cat(sprintf("║  Pooled SE:       %7.2f                                 ║\n", SE_pooled))
-  cat(sprintf("║  95%% CI: [%6.2f, %6.2f]                              ║\n", lower_CL, upper_CL))
-  cat(sprintf("║  p-value: %s                                    ║\n", 
-              ifelse(p_value < 0.001, "<0.001", sprintf("%.4f", p_value))))
-  cat("║                                                              ║\n")
-  cat(sprintf("║  Degrees of freedom: %.1f                               ║\n", df_adj))
-  cat(sprintf("║  Between-imputation variance (B): %.2f                  ║\n", B))
-  cat(sprintf("║  Within-imputation variance (U): %.2f                   ║\n", U_bar))
-  cat(sprintf("║  Relative increase in variance: %.2f%%                  ║\n", r * 100))
-  cat(sprintf("║  Fraction missing information: %.2f%%                   ║\n", lambda * 100))
-  cat("╚══════════════════════════════════════════════════════════════╝\n\n")
-  
-  cat("Interpretation:\n")
-  cat("  • FMI (λ) =", round(lambda * 100, 1), "% - proportion of variation due to missing data\n")
-  cat("  • RIV (r) =", round(r, 2), "- variance inflated by", round(r * 100, 1), "% due to missingness\n")
-  if (lambda < 0.10) {
-    cat("  • Low FMI suggests MAR assumption is likely reasonable\n")
-  } else if (lambda < 0.30) {
-    cat("  • Moderate FMI suggests some uncertainty about missing data mechanism\n")
-  } else {
-    cat("  • High FMI suggests substantial impact of missing data - sensitivity analysis crucial\n")
-  }
-  cat("\n")
-  
-  cat("✓ SA2 (Multiple Imputation) completed successfully\n\n")
-  
-} else {
-  cat("✗ SA2 (Multiple Imputation) failed - insufficient successful imputations\n\n")
-}
-
 # ------------------------------------------------------------------------------
 # 9. VISUALIZE POOLED RESULTS
 # ------------------------------------------------------------------------------
-
-cat("Creating visualization of imputation variability...\n")
 
 # Forest plot of individual imputation estimates
 png("MI_Forest_Plot_Imputations.png", width = 10, height = 12, units = "in", res = 300)
@@ -1105,26 +955,6 @@ ggplot(mi_results_df, aes(x = estimate)) +
   theme_classic()
 
 dev.off()
-
-cat("✓ Imputation variability visualizations created\n\n")
-
-cat("╔══════════════════════════════════════════════════════════════╗\n")
-cat("║           MULTIPLE IMPUTATION ANALYSIS COMPLETE              ║\n")
-cat("╠══════════════════════════════════════════════════════════════╣\n")
-cat("║  Files created:                                              ║\n")
-cat("║    • Missing_Data_Heatmap.png                                ║\n")
-cat("║    • Missing_Data_Pattern.png                                ║\n")
-cat("║    • MI_Convergence_Overall.png (CHECK THIS!)                ║\n")
-cat("║    • MI_Convergence_MHOWS.png                                ║\n")
-cat("║    • MI_Stripplot_MHOWS.png                                  ║\n")
-cat("║    • MI_Densityplot_MHOWS.png                                ║\n")
-cat("║    • MI_Correlation_Comparison.png                           ║\n")
-cat("║    • MI_Forest_Plot_Imputations.png                          ║\n")
-cat("║    • MI_Estimate_Distribution.png                            ║\n")
-cat("║    • MI_Individual_Imputation_Results.csv                    ║\n")
-cat("║    • MI_Pooled_Results_Detailed.csv                          ║\n")
-cat("╚══════════════════════════════════════════════════════════════╝\n\n")
-
 
 # Convergence diagnostics
 png("MI_Convergence_Diagnostic.png", width = 10, height = 8, units = "in", res = 300)
@@ -1180,8 +1010,6 @@ sensitivity_results$SA4_Adjusted <- extract_avg_effect(model_adjusted)
 
 adjusted_ci_width <- sensitivity_results$SA4_Adjusted$upper.CL - sensitivity_results$SA4_Adjusted$lower.CL
 precision_gain <- round(100 * (primary_ci_width - adjusted_ci_width) / primary_ci_width, 1)
-
-cat("✓ SA4 completed (Precision gain:", precision_gain, "%)\n")
 
 
 
@@ -1273,8 +1101,6 @@ imp_components <- mice(
   printFlag = FALSE
 )
 
-cat("✓ Component imputation completed\n\n")
-
 # ==============================================================================
 # Step 3: PASSIVELY DERIVE MHOWS from imputed components
 # ==============================================================================
@@ -1305,8 +1131,6 @@ imputed_long_list <- lapply(1:imp_components$m, function(i) {
   
   return(long_data)
 })
-
-cat("✓ MHOWS passively derived from imputed components\n\n")
 
 
 # ==============================================================================
@@ -1357,8 +1181,6 @@ mi_passive_results <- lapply(seq_along(imputed_long_list), function(i) {
 mi_passive_results <- mi_passive_results[!sapply(mi_passive_results, is.null)]
 mi_passive_df <- do.call(rbind, mi_passive_results)
 
-cat("\n✓ Models fitted to", nrow(mi_passive_df), "passively-derived datasets\n\n")
-
 # Save individual results
 write.csv(mi_passive_df, "MI_Passive_Individual_Results.csv", row.names = FALSE)
 
@@ -1366,8 +1188,6 @@ write.csv(mi_passive_df, "MI_Passive_Individual_Results.csv", row.names = FALSE)
 # ==============================================================================
 # POOL RESULTS USING RUBIN'S RULES
 # ==============================================================================
-
-cat("Pooling results using Rubin's Rules...\n")
 
 if (nrow(mi_passive_df) > 0) {
   mi_estimates <- mi_passive_df$estimate
@@ -1428,37 +1248,9 @@ if (nrow(mi_passive_df) > 0) {
   )
   
   write.csv(mi_passive_summary, "MI_Passive_Pooled_Results.csv", row.names = FALSE)
-  
-  # Print summary
-  cat("\n")
-  cat("╔══════════════════════════════════════════════════════════════╗\n")
-  cat("║   SA6: MULTIPLE IMPUTATION (PASSIVE DERIVATION) RESULTS     ║\n")
-  cat("╠══════════════════════════════════════════════════════════════╣\n")
-  cat(sprintf("║  Pooled Estimate: %7.2f MHOWS points                    ║\n", Q_bar))
-  cat(sprintf("║  Pooled SE:       %7.2f                                 ║\n", SE_pooled))
-  cat(sprintf("║  95%% CI: [%6.2f, %6.2f]                              ║\n", lower_CL, upper_CL))
-  cat(sprintf("║  p-value: %s                                    ║\n", 
-              ifelse(p_value < 0.001, "<0.001", sprintf("%.4f", p_value))))
-  cat("║                                                              ║\n")
-  cat(sprintf("║  Degrees of freedom: %.1f                               ║\n", df_adj))
-  cat(sprintf("║  Between-imputation variance (B): %.2f                  ║\n", B))
-  cat(sprintf("║  Within-imputation variance (U): %.2f                   ║\n", U_bar))
-  cat(sprintf("║  Relative increase in variance: %.2f%%                  ║\n", r * 100))
-  cat(sprintf("║  Fraction missing information: %.2f%%                   ║\n", lambda * 100))
-  cat("╚══════════════════════════════════════════════════════════════╝\n\n")
-  
-  cat("✓ SA6 (Multiple Imputation - Passive Derivation) completed successfully\n\n")
-  
-} else {
-  cat("✗ SA6 failed - insufficient successful imputations\n\n")
-}
-
-
 # ==============================================================================
 # COMPARE DIRECT VS PASSIVE IMPUTATION
 # ==============================================================================
-
-cat("=== COMPARING MI APPROACHES ===\n\n")
 
 # Extract results from both MI approaches
 mi_direct_est <- sensitivity_results$SA2_MI$estimate
@@ -1489,36 +1281,9 @@ mi_comparison <- data.frame(
 print(mi_comparison)
 write.csv(mi_comparison, "MI_Comparison_Direct_vs_Passive.csv", row.names = FALSE)
 
-cat("\n")
-cat("╔══════════════════════════════════════════════════════════════╗\n")
-cat("║           MI APPROACH COMPARISON                             ║\n")
-cat("╠══════════════════════════════════════════════════════════════╣\n")
-cat(sprintf("║  Direct Imputation:    %.2f [%.2f, %.2f]              ║\n", 
-            mi_direct_est, mi_direct_lower, mi_direct_upper))
-cat(sprintf("║  Passive Derivation:   %.2f [%.2f, %.2f]              ║\n", 
-            mi_passive_est, mi_passive_lower, mi_passive_upper))
-cat(sprintf("║  Difference:           %.2f points                        ║\n", 
-            mi_passive_est - mi_direct_est))
-cat(sprintf("║  FMI Direct:           %.1f%%                              ║\n", 
-            mi_direct_fmi * 100))
-cat(sprintf("║  FMI Passive:          %.1f%%                              ║\n", 
-            mi_passive_fmi * 100))
-cat("╚══════════════════════════════════════════════════════════════╝\n\n")
-
-# Interpretation
-if (abs(mi_passive_est - mi_direct_est) < 1) {
-  cat("Interpretation: Minimal difference between approaches - results robust\n")
-} else if (abs(mi_passive_est - mi_direct_est) < 2) {
-  cat("Interpretation: Small difference between approaches - generally consistent\n")
-} else {
-  cat("Interpretation: Notable difference between approaches - warrants discussion\n")
-}
-
 # ==============================================================================
 # VISUALIZE MI COMPARISON
 # ==============================================================================
-
-cat("\nCreating MI comparison visualizations...\n")
 
 # Side-by-side forest plot
 mi_forest_data <- data.frame(
@@ -1597,10 +1362,6 @@ sa6_display <- sprintf(
   sa6_row$Percent_Change,
   sa6_row$p_value
 )
-
-cat("\nAdd this row to Table 6 (under Alternative MAR Approaches):\n")
-cat(sa6_display, "\n\n")
-
 
 
 
@@ -1682,13 +1443,9 @@ sensitivity_results$SA5_MNAR_0.25SD <- tipping_results %>% filter(delta_sd == 0.
 sensitivity_results$SA5_MNAR_0.50SD <- tipping_results %>% filter(delta_sd == 0.50)
 sensitivity_results$SA5_MNAR_1.00SD <- tipping_results %>% filter(delta_sd == 1.00)
 
-cat("\n✓ All sensitivity analyses completed\n\n")
-
 # ==============================================================================
 # 7. CREATE SUMMARY TABLE (TABLE 5)
 # ==============================================================================
-
-cat("=== STEP 7: SUMMARY TABLE ===\n")
 
 compile_sa_result <- function(result, name) {
   if (is.data.frame(result) && nrow(result) > 0 && !is.na(result$estimate[1])) {
@@ -1726,12 +1483,8 @@ table5 <- bind_rows(
     p_formatted = ifelse(p_value < 0.001, "<0.001", sprintf("%.3f", p_value))
   ) %>%
   select(Analysis, Estimate_CI, CI_Width, p_formatted)
-
-cat("\n--- Table 5: Sensitivity Analysis Summary ---\n")
 print(table5)
 write.csv(table5, "Table5_Sensitivity_Analysis_Summary.csv", row.names = FALSE)
-
-cat("\n✓ Summary table created\n\n")
 
 # ==============================================================================
 # 8. FOREST PLOT AND TIPPING POINT VISUALIZATION
@@ -1827,60 +1580,10 @@ if (nrow(tipping_results) > 0) {
   ggsave("Figure5_Tipping_Point.png", fig5, width = 10, height = 6, dpi = 300)
 }
 
-cat("✓ Visualizations created\n\n")
-
-# ==============================================================================
-# FINAL SUMMARY
-# ==============================================================================
-
-cat("\n")
-cat("================================================================================\n")
-cat("                    ANALYSIS COMPLETE!                                          \n")
-cat("================================================================================\n\n")
-
-cat("PRIMARY RESULTS:\n")
-cat("  Treatment Effect:", round(primary_result$estimate, 2), "points\n")
-cat("  95% CI: [", round(primary_result$lower.CL, 2), ",", 
-    round(primary_result$upper.CL, 2), "]\n")
-cat("  p-value:", ifelse(primary_result$p.value < 0.001, "<0.001", 
-                         sprintf("%.4f", primary_result$p.value)), "\n\n")
-
-cat("SENSITIVITY ANALYSIS SUMMARY:\n")
-cat("  Complete case precision loss:", precision_loss, "%\n")
-if (nrow(tipping_point) > 0) {
-  cat("  MNAR tipping point:", tipping_point$delta_sd, "SD\n")
-} else {
-  cat("  MNAR tipping point: Not reached (highly robust)\n")
-}
-
-cat("\nKEY FILES GENERATED:\n")
-cat("  • Table1_Baseline_Characteristics.html\n")
-cat("  • Table2_Missing_Data_Summary.csv\n")
-cat("  • Table3_Unadjusted_Means.csv\n")
-cat("  • Table4_Primary_Results.csv\n")
-cat("  • Table5_Sensitivity_Analysis_Summary.csv\n")
-cat("  • Figure2_Individual_Trajectories.png\n")
-cat("  • Figure3_Mean_Trajectories.png\n")
-cat("  • Figure4_Forest_Plot_Sensitivity.png\n")
-if (nrow(tipping_results) > 0) {
-  cat("  • Figure5_Tipping_Point.png\n")
-}
-
-cat("\n================================================================================\n")
 
 #===============================================================================
 # APPENDIX B.8: MODEL DIAGNOSTICS FOR PRIMARY ANALYSIS
 #===============================================================================
-
-cat("=== MODEL DIAGNOSTICS FOR PRIMARY LINEAR MIXED MODEL ===\n")
-
-#------------------------------------------------------------------------------
-# SUCCESSFUL DIAGNOSTIC PLOTS
-#------------------------------------------------------------------------------
-
-cat("→ Creating comprehensive diagnostic plots...\n")
-
-# Extract model data and residuals (this worked)
 model_data <- getData(primary_model)
 resid_df <- data.frame(
   Fitted = fitted(primary_model),
@@ -1899,8 +1602,6 @@ cat("✓ Diagnostic data prepared successfully\n")
 #------------------------------------------------------------------------------
 # 1. RESIDUAL DIAGNOSTIC PLOTS (ALL WORKED)
 #------------------------------------------------------------------------------
-
-cat("→ Creating residual diagnostic plots...\n")
 
 # 1.1 Residual vs Fitted Plot
 p1 <- ggplot(resid_df, aes(x = Fitted, y = Residuals)) +
@@ -1945,14 +1646,9 @@ p4 <- ggplot(resid_df, aes(x = Treatment, y = Residuals, fill = Treatment)) +
 residual_grid <- grid.arrange(p1, p2, p3, p4, ncol = 2)
 ggsave("Figure6_Residual_Diagnostics.png", residual_grid, width = 12, height = 10, dpi = 300)
 
-cat("✓ Residual diagnostic plots created and saved\n")
-
 #------------------------------------------------------------------------------
 # 2. RANDOM EFFECTS DIAGNOSTICS (ALL WORKED)
 #------------------------------------------------------------------------------
-
-cat("→ Creating random effects diagnostic plots...\n")
-
 # Extract random effects
 ranef_df <- ranef(primary_model)
 colnames(ranef_df) <- c("Random_Intercept", "Random_Slope")
@@ -1992,9 +1688,6 @@ cat("✓ Random effects diagnostic plots created and saved\n")
 #------------------------------------------------------------------------------
 # 3. AUTOCORRELATION AND TIME TREND DIAGNOSTICS (WORKED)
 #------------------------------------------------------------------------------
-
-cat("→ Creating autocorrelation and time trend plots...\n")
-
 # 3.1 Autocorrelation function
 acf_data <- acf(resid(primary_model), plot = FALSE)
 acf_df <- with(acf_data, data.frame(lag, acf))
@@ -2022,13 +1715,9 @@ p9 <- ggplot(analysis_long_diagnostics, aes(x = day, y = Residuals, group = PATI
 final_diag_grid <- grid.arrange(p8, p9, ncol = 2)
 ggsave("Figure8_Final_Diagnostics.png", final_diag_grid, width = 12, height = 6, dpi = 300)
 
-cat("✓ Autocorrelation and time trend plots created and saved\n")
-
 #------------------------------------------------------------------------------
 # 4. BASIC MODEL ASSUMPTIONS CHECK (SIMPLIFIED)
 #------------------------------------------------------------------------------
-
-cat("→ Performing basic model assumptions checks...\n")
 
 # Simple checks that work without complex data manipulation
 assumptions_checks <- data.frame(
@@ -2063,39 +1752,3 @@ assumptions_checks <- data.frame(
 
 print(assumptions_checks)
 write.csv(assumptions_checks, "Model_Assumptions_Summary.csv", row.names = FALSE)
-
-cat("✓ Basic model assumptions checks completed\n")
-
-#------------------------------------------------------------------------------
-# 5. FINAL DIAGNOSTICS SUMMARY
-#------------------------------------------------------------------------------
-
-cat("\n")
-cat("╔══════════════════════════════════════════════════════════════╗\n")
-cat("║               MODEL DIAGNOSTICS SUMMARY                     ║\n")
-cat("╠══════════════════════════════════════════════════════════════╣\n")
-cat("║  SUCCESSFULLY COMPLETED DIAGNOSTICS:                        ║\n")
-cat("║                                                              ║\n")
-cat("║  • Residuals vs Fitted values plot                          ║\n")
-cat("║  • Q-Q plot of residuals                                    ║\n")
-cat("║  • Residual distribution histogram                          ║\n")
-cat("║  • Residuals by treatment group                             ║\n")
-cat("║  • Random intercepts vs slopes                              ║\n")
-cat("║  • Q-Q plots for random effects                             ║\n")
-cat("║  • Autocorrelation function plot                            ║\n")
-cat("║  • Residuals over time by treatment                         ║\n")
-cat("║                                                              ║\n")
-cat("║  FILES GENERATED:                                           ║\n")
-cat("║    • Figure6_Residual_Diagnostics.png                       ║\n")
-cat("║    • Figure7_Random_Effects_Diagnostics.png                 ║\n")
-cat("║    • Figure8_Final_Diagnostics.png                          ║\n")
-cat("║    • Model_Assumptions_Summary.csv                          ║\n")
-cat("╚══════════════════════════════════════════════════════════════╝\n\n")
-
-cat("✓ Comprehensive model diagnostics completed successfully\n")
-cat("✓ All diagnostic plots saved for manuscript inclusion\n\n")
-
-# Save updated workspace
-save.image("lofexidine_analysis_complete.RData")
-cat("✓ Updated workspace saved: lofexidine_analysis_complete.RData\n")
-
